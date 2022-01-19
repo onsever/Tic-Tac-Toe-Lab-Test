@@ -25,7 +25,6 @@ struct Game {
     enum Turn: String {
         case cross = "cross"
         case nought = "nought"
-        case none = "none"
     }
     
     enum Winner {
@@ -48,12 +47,12 @@ struct Game {
         
         if checkTurn() == .cross {
             turnCounter += 1
-            currentPlayer = .player2
+            currentPlayer = .player1
             turn = .nought
         }
         else {
             turnCounter += 1
-            currentPlayer = .player1
+            currentPlayer = .player2
             turn = .cross
         }
         
@@ -71,8 +70,17 @@ struct Game {
     
     mutating func reset() {
         turnCounter = 0
-        turn = .none
         currentPlayer = .player1
+    }
+    
+    mutating func incrementScore() {
+        if winner == .player1 {
+            player1Score += 1
+        }
+        
+        if winner == .player2 {
+            player2Score += 1
+        }
     }
     
         
