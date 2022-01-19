@@ -25,6 +25,7 @@ class ViewController: UIViewController {
     
     private var game = Game()
     private lazy var cells: [UIButton] = [cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8, cell9]
+    private var isGameFinished: Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,8 +34,14 @@ class ViewController: UIViewController {
     
     @IBAction func gameBoardPressed(_ sender: UIButton) {
         
+        if isGameFinished {
+            game.winner = .none
+            isGameFinished = false
+        }
+        
         if game.winner == .none {
             game.start()
+            isGameFinished = false
             if (sender.image(for: .normal) == nil) {
                 if (game.currentPlayer == .player1) {
                     playerLabel.text = "Player 1's Turn"
@@ -46,6 +53,8 @@ class ViewController: UIViewController {
                     UIView.animate(withDuration: 1.2) {
                         sender.imageView?.alpha = 1
                         sender.setImage(UIImage(named: self.game.turn.rawValue), for: .normal)
+                        
+                        print("Player 1: \(self.game.turn.rawValue)")
                         
                     }
                                         
@@ -68,9 +77,12 @@ class ViewController: UIViewController {
                             sender.setImage(UIImage(named: self.game.turn.rawValue), for: .normal)
                             sender.imageView?.frame = CGRect(x: x, y: y, width: width, height: height)
                         }
+                        
+                        print("Player 2: \(self.game.turn.rawValue)")
                     }
                 }
                 sender.isEnabled = false
+                print("Sender state: \(sender.isEnabled)")
             }
         }
         
@@ -82,39 +94,42 @@ class ViewController: UIViewController {
         
         if game.determineTheWinner(cellTitles: getCellTitles(), turn: Game.Turn.cross) {
             game.winner = .player1
-            game.incrementScore()
+            
+            if !sender.isEnabled {
+                game.player1Score += 1
+            }
+            
             player1ScoreLabel.text = "Player 1: \(game.player1Score)"
             playerLabel.text = "Player 1 (Cross) has won!"
             playerLabel.textColor = .systemGreen
-            game.winner = .none
+        
         }
         
         if game.determineTheWinner(cellTitles: getCellTitles(), turn: Game.Turn.nought) {
             game.winner = .player2
-            game.incrementScore()
+            
+            if !sender.isEnabled {
+                game.player2Score += 1
+            }
+            
             player2ScoreLabel.text = "Player 2: \(game.player2Score)"
             playerLabel.text = "Player 2 (Nought) has won!"
             playerLabel.textColor = .systemRed
-            game.winner = .none
+        
         }
         
-        /*
-         if game.determineTheWinner(cellTitles: getCellTitles(), turn: Game.Turn.cross) {
-             game.player1Score += 1
-             player1ScoreLabel.text = "Player 1: \(game.player1Score)"
-             playerLabel.text = "Player 1 (Cross) has won!"
-             playerLabel.textColor = .systemGreen
-             game.winner = .player1
-         }
-         
-         if game.determineTheWinner(cellTitles: getCellTitles(), turn: Game.Turn.nought) {
-             game.player2Score += 1
-             player2ScoreLabel.text = "Player 2: \(game.player2Score)"
-             playerLabel.text = "Player 2 (Nought) has won!"
-             playerLabel.textColor = .systemRed
-             game.winner = .player2
-         }
-         */
+        print("Game Winner: \(game.winner)")
+        print("Turn: \(game.turn.rawValue)")
+        print("Current Player: \(game.currentPlayer)")
+        print("Turn Counter: \(game.turnCounter)")
+        print("Button title: \(sender.currentTitle!)")
+        print("Score: \(game.player1Score)")
+        print("Score: \(game.player2Score)")
+        print("\n\n")
+        
+        for cell in cells {
+            print("Cell: \(cell.currentTitle!)")
+        }
         
         
         
@@ -124,7 +139,7 @@ class ViewController: UIViewController {
         var cellTitles: [String] = [String]()
         
         for cell in cells {
-            cellTitles.append(cell.title(for: .normal) ?? game.turn.rawValue)
+            cellTitles.append(cell.title(for: .normal)!)
         }
         
         return cellTitles
@@ -142,9 +157,10 @@ class ViewController: UIViewController {
     
     @objc private func swipeRecognized(_ gesture: UISwipeGestureRecognizer) {
         if gesture.state == .ended {
+            isGameFinished = true
             for cell in cells {
                 cell.setImage(nil, for: .normal)
-                cell.setTitle(nil, for: .normal)
+                cell.setTitle("", for: .normal)
                 cell.isEnabled = true
             }
             game.reset()
