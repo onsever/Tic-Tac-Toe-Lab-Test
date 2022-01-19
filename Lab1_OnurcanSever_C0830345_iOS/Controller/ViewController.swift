@@ -25,7 +25,6 @@ class ViewController: UIViewController {
     
     private var game = Game()
     private lazy var cells: [UIButton] = [cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8, cell9]
-    private var isGameFinished: Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,14 +33,8 @@ class ViewController: UIViewController {
     
     @IBAction func gameBoardPressed(_ sender: UIButton) {
         
-        if isGameFinished {
-            game.winner = .none
-            isGameFinished = false
-        }
-        
         if game.winner == .none {
             game.start()
-            isGameFinished = false
             if (sender.image(for: .normal) == nil) {
                 if (game.currentPlayer == .player1) {
                     playerLabel.text = "Player 1's Turn"
@@ -53,9 +46,7 @@ class ViewController: UIViewController {
                     UIView.animate(withDuration: 1.2) {
                         sender.imageView?.alpha = 1
                         sender.setImage(UIImage(named: self.game.turn.rawValue), for: .normal)
-                        
-                        print("Player 1: \(self.game.turn.rawValue)")
-                        
+                                                
                     }
                                         
                 }
@@ -78,11 +69,9 @@ class ViewController: UIViewController {
                             sender.imageView?.frame = CGRect(x: x, y: y, width: width, height: height)
                         }
                         
-                        print("Player 2: \(self.game.turn.rawValue)")
                     }
                 }
                 sender.isEnabled = false
-                print("Sender state: \(sender.isEnabled)")
             }
         }
         
@@ -96,7 +85,7 @@ class ViewController: UIViewController {
             game.winner = .player1
             
             if !sender.isEnabled {
-                game.player1Score += 1
+                game.incrementScore()
             }
             
             player1ScoreLabel.text = "Player 1: \(game.player1Score)"
@@ -109,7 +98,7 @@ class ViewController: UIViewController {
             game.winner = .player2
             
             if !sender.isEnabled {
-                game.player2Score += 1
+                game.incrementScore()
             }
             
             player2ScoreLabel.text = "Player 2: \(game.player2Score)"
@@ -117,22 +106,7 @@ class ViewController: UIViewController {
             playerLabel.textColor = .systemRed
         
         }
-        
-        print("Game Winner: \(game.winner)")
-        print("Turn: \(game.turn.rawValue)")
-        print("Current Player: \(game.currentPlayer)")
-        print("Turn Counter: \(game.turnCounter)")
-        print("Button title: \(sender.currentTitle!)")
-        print("Score: \(game.player1Score)")
-        print("Score: \(game.player2Score)")
-        print("\n\n")
-        
-        for cell in cells {
-            print("Cell: \(cell.currentTitle!)")
-        }
-        
-        
-        
+  
     }
     
     private func getCellTitles() -> [String] {
@@ -157,7 +131,6 @@ class ViewController: UIViewController {
     
     @objc private func swipeRecognized(_ gesture: UISwipeGestureRecognizer) {
         if gesture.state == .ended {
-            isGameFinished = true
             for cell in cells {
                 cell.setImage(nil, for: .normal)
                 cell.setTitle("", for: .normal)
@@ -190,46 +163,3 @@ class ViewController: UIViewController {
  
     
 }
-
-/*
- game.start()
- if (sender.image(for: .normal) == nil) {
-     if (game.currentPlayer == .player1) {
-         playerLabel.text = "Player 1's Turn"
-         playerLabel.textColor = .systemGreen
-         
-         sender.setTitle(game.turn.rawValue, for: .normal)
-         sender.imageView?.alpha = 0
-                             
-         UIView.animate(withDuration: 1.2) {
-             sender.imageView?.alpha = 1
-             sender.setImage(UIImage(named: self.game.turn.rawValue), for: .normal)
-             
-         }
-                             
-     }
-     else if (sender.image(for: .normal)) == nil {
-         if (game.currentPlayer == .player2) {
-             playerLabel.text = "Player 2's Turn"
-             playerLabel.textColor = .systemRed
-             
-             let x = sender.frame.origin.x
-             let y = sender.frame.origin.y
-             
-             let height = sender.frame.size.height
-             let width = sender.frame.size.width
-             
-             sender.setTitle(game.turn.rawValue, for: .normal)
-             sender.imageView?.frame = CGRect(x: x, y: y, width: 0, height: 0)
-             
-                 UIView.animate(withDuration: 1.2) {
-                 sender.setImage(UIImage(named: self.game.turn.rawValue), for: .normal)
-                 sender.imageView?.frame = CGRect(x: x, y: y, width: width, height: height)
-             }
-         }
-     }
-     sender.isEnabled = false
-     game.end()
-
- }
- */
